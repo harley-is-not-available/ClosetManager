@@ -1,20 +1,21 @@
 import { useEffect, useRef, useState } from "react";
 import ClosetItemListTile from "@components/closet/closet-item-list/closet-item-list-tile";
 import ClosetItemListToolbar from "@components/closet/closet-item-list/closet-item-list-toolbar";
-import type { ClosetItem } from "@types/closet/closet-item";
-import { fetchClothingItems } from "@/src/utils/api";
 import ClosetItemTileSizeController from "@components/closet/closet-item-list/closet-item-tile-size-controller";
 import { ItemSize, type ItemSizeKey } from "@types/enums/item_size";
+import { useAppDispatch, useAppSelector } from "../store/redux-hooks";
+import {
+  getItems,
+  getItemsFromAPI,
+  selectClosetItems,
+} from "../store/items-slice";
 
 /**
  * The main component for the Closet page.
  * This component fetches and displays clothing items, and allows the user to adjust the tile size.
  */
 function Closet() {
-  /**
-   * State to hold the list of clothing items.
-   */
-  const [items, setItems] = useState<ClosetItem[]>([]);
+  const dispatch = useAppDispatch();
 
   /**
    * State to hold the current card size.
@@ -36,7 +37,7 @@ function Closet() {
    * This runs once when the component mounts.
    */
   useEffect(() => {
-    fetchClothingItems().then(setItems);
+    dispatch(getItemsFromAPI());
   }, []);
 
   /**
@@ -45,11 +46,9 @@ function Closet() {
    */
   useEffect(() => {
     const savedCardSize = localStorage.getItem("closetCardSize");
-    console.log("mounted: " + savedCardSize);
     if (savedCardSize && savedCardSize in ItemSize) {
       setCardSize(savedCardSize as ItemSizeKey);
     } else {
-      console.log("made it here :(");
       if (window.innerWidth < 768) {
         setCardSize("sm");
       } else {
@@ -57,7 +56,6 @@ function Closet() {
       }
     }
     hasLoadedFromLocalStorage.current = true;
-    console.log("loaded = true");
 
     // Use a small delay to ensure the state has been updated
     const timer = setTimeout(() => {
@@ -73,7 +71,6 @@ function Closet() {
    */
   useEffect(() => {
     if (isFirstLoadDone.current) {
-      console.log("saving: " + cardSize);
       localStorage.setItem("closetCardSize", cardSize);
     }
   }, [cardSize, isFirstLoadDone]);
@@ -83,7 +80,6 @@ function Closet() {
    * @param size - The new card size to be set.
    */
   const handleCardSizeChange = (size: ItemSizeKey) => {
-    console.log("changing: " + size);
     setCardSize(size);
   };
 
@@ -103,7 +99,7 @@ function Closet() {
           } as React.CSSProperties
         }
       >
-        {items.map((item) => (
+        {useAppSelector(selectClosetItems).map((item) => (
           <ClosetItemListTile key={item.id} item={item} cardSize={cardSize} />
         ))}
       </div>
