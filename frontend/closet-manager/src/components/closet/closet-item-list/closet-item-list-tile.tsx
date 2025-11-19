@@ -1,5 +1,5 @@
-import type { ClosetItem } from "@/types/closet/closet-item";
-import ClosetItemListTileOverlay from "@components/closet/closet-item-list/closet-item-list-tile-overlay";
+import type { ClosetItem } from "../../../types/closet/closet-item";
+import ClosetItemListTileOverlay from "../../../components/closet/closet-item-list/closet-item-list-tile-overlay";
 import { useState } from "react";
 
 /**
@@ -7,14 +7,21 @@ import { useState } from "react";
  * Each tile displays an image of the item and an overlay with additional details.
  *
  * @param item - The closet item data to display
+ * @param onClick - Function to trigger when the tile is clicked
  * @returns The rendered tile component
  */
-function ClosetItemListTile({ item }: { item: ClosetItem }) {
+function ClosetItemListTile({
+  item,
+  onClick,
+}: {
+  item: ClosetItem;
+  onClick?: () => void;
+}) {
   // Track whether the image is valid (to handle cases where the image URL is broken)
   const [isImageValid, setIsImageValid] = useState(true);
 
   return (
-    <div className={`relative group`}>
+    <div className={`relative group`} onClick={onClick}>
       <div className="card bg-base-100 bg-linear-to-br from-base-200 to-base-300 shadow-md hover:shadow-lg transition-all duration-300 rounded-xl overflow-hidden">
         <div className="aspect-4/3 relative">
           {/* Display the item image if it exists and is valid */}

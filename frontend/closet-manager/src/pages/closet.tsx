@@ -1,14 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import ClosetItemListTile from "@components/closet/closet-item-list/closet-item-list-tile";
-import ClosetItemListToolbar from "@components/closet/closet-item-list/closet-item-list-toolbar";
-import ClosetItemTileSizeController from "@components/closet/closet-item-list/closet-item-tile-size-controller";
-import { ItemSize, type ItemSizeKey } from "@types/enums/item_size";
+import ClosetItemListTile from "../components/closet/closet-item-list/closet-item-list-tile";
+import ClosetItemListToolbar from "../components/closet/closet-item-list/closet-item-list-toolbar";
+import ClosetItemTileSizeController from "../components/closet/closet-item-list/closet-item-tile-size-controller";
+import { ItemSize, type ItemSizeKey } from "../types/enums/item_size";
 import { useAppDispatch, useAppSelector } from "../store/redux-hooks";
-import {
-  getItems,
-  getItemsFromAPI,
-  selectClosetItems,
-} from "../store/items-slice";
+import { getItemsFromAPI, selectClosetItems } from "../store/items-slice";
 
 /**
  * The main component for the Closet page.
@@ -38,7 +34,7 @@ function Closet() {
    */
   useEffect(() => {
     dispatch(getItemsFromAPI());
-  }, []);
+  }, [dispatch]);
 
   /**
    * Effect to read the initial card size from localStorage.
@@ -85,7 +81,7 @@ function Closet() {
 
   return (
     <div className="p-6">
-      <ClosetItemListToolbar />
+      <ClosetItemListToolbar onSearch={() => console.log()} />
       <ClosetItemTileSizeController
         cardSize={cardSize}
         handleCardSizeChange={handleCardSizeChange}
@@ -100,7 +96,7 @@ function Closet() {
         }
       >
         {useAppSelector(selectClosetItems).map((item) => (
-          <ClosetItemListTile key={item.id} item={item} cardSize={cardSize} />
+          <ClosetItemListTile key={item.id} item={item} />
         ))}
       </div>
     </div>

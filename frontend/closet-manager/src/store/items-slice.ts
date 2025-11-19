@@ -1,19 +1,23 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
-import type { AppThunk, RootState } from "../../src/store";
+import type { RootState } from "../../src/store";
 import type { ClosetItem } from "../types/closet/closet-item";
 import { fetchClothingItems } from "../utils/api";
 import { createAsyncThunk } from "@reduxjs/toolkit";
+import {
+  LoadingStatus,
+  type LoadingStatusKey,
+} from "../types/enums/resource_loading_status";
 
 export interface ClosetItemState {
   items: ClosetItem[];
-  status: "idle" | "loading" | "failed";
+  status: LoadingStatusKey;
 }
 
 // Initial state for clothing items
 const initialState: ClosetItemState = {
   items: [],
-  status: "idle",
+  status: LoadingStatus.unloaded,
 };
 
 // Create the Redux slice
@@ -25,7 +29,15 @@ const itemsSlice = createSlice({
       state.items.push(action.payload);
     },
     removeItem: (state, action: PayloadAction<string>) => {
-      state.items.filter((item) => item.id !== action.payload);
+      state.items = state.items.filter((item) => item.id !== action.payload);
+    },
+    updateItem: (state, action: PayloadAction<ClosetItem>) => {
+      const index = state.items.findIndex(
+        (item) => item.id === action.payload.id,
+      );
+      if (index !== -1) {
+        state.items[index] = action.payload;
+      }
     },
     getItems: (state, action: PayloadAction<ClosetItem[]>) => {
       state.items = action.payload;
@@ -33,17 +45,15 @@ const itemsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Handle the action types defined by the `incrementAsync` thunk defined below.
-      // This lets the slice reducer update the state with request status and results.
       .addCase(getItemsFromAPI.pending, (state) => {
-        state.status = "loading";
+        state.status = LoadingStatus.loading;
       })
       .addCase(getItemsFromAPI.fulfilled, (state, action) => {
-        state.status = "idle";
+        state.status = LoadingStatus.idle;
         state.items = action.payload;
       })
       .addCase(getItemsFromAPI.rejected, (state) => {
-        state.status = "failed";
+        state.status = LoadingStatus.error;
       });
   },
 });
@@ -56,7 +66,8 @@ export const getItemsFromAPI = createAsyncThunk(
   },
 );
 
-// Export the reducer and actions
-export const { addItem, removeItem, getItems } = itemsSlice.actions;
+export const { addItem, removeItem, updateItem } = itemsSlice.actions;
 export default itemsSlice.reducer;
 export const selectClosetItems = (state: RootState) => state.closetItems.items;
+export const selectClosetItemsStatus = (state: RootState) =>
+  state.closetItems.status;

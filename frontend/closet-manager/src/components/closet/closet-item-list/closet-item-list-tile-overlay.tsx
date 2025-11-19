@@ -1,4 +1,4 @@
-import type { ClosetItem } from "@/types/closet/closet-item";
+import type { ClosetItem } from "../../../types/closet/closet-item";
 
 /**
  * A component that renders an overlay for a closet item tile.
@@ -13,7 +13,12 @@ function ClosetItemListTileOverlay({ item }: { item: ClosetItem }) {
       <div className="text-white text-sm backdrop-blur-sm rounded-lg p-3 bg-black bg-opacity-30">
         <div className="font-semibold">{item.brand}</div>
         <div className="text-xs opacity-80 mt-1">
-          {item.category} - {item.color} ({item.size})
+          <p>
+            {item.category} - {item.subcategory}
+          </p>
+          <p>
+            {item.color} ({item.size})
+          </p>
         </div>
       </div>
     </div>
