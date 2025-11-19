@@ -8,6 +8,7 @@ import {
   getItemsFromAPI,
   selectClosetItems,
   updateItem,
+  addItem,
 } from "../store/items-slice";
 import ClosetItemDetailDialog from "../components/closet/ClosetItemDetailDialog";
 import type { ClosetItem } from "../types/closet/closet-item";
@@ -28,6 +29,11 @@ function Closet() {
    * State to hold the currently selected item for detail view.
    */
   const [selectedItem, setSelectedItem] = useState<ClosetItem | null>(null);
+
+  /**
+   * State to track whether we're adding a new item.
+   */
+  const [addingNewItem, setAddingNewItem] = useState(false);
 
   /**
    * Ref to track whether the first `useEffect` has completed.
@@ -100,9 +106,27 @@ function Closet() {
     setSelectedItem(null);
   };
 
+  /**
+   * Handles adding a new item.
+   * @param newItem - The new item to be added.
+   */
+  const handleItemAdd = (newItem: ClosetItem) => {
+    // Add the new item to the Redux store
+    dispatch(addItem(newItem));
+    setAddingNewItem(false);
+  };
+
   return (
     <div className="p-6">
-      <ClosetItemListToolbar onSearch={() => console.log()} />
+      <div className="flex justify-between items-center mb-4">
+        <ClosetItemListToolbar onSearch={() => console.log()} />
+        <button
+          className="btn btn-primary"
+          onClick={() => setAddingNewItem(true)}
+        >
+          Add Item
+        </button>
+      </div>
       <ClosetItemTileSizeController
         cardSize={cardSize}
         handleCardSizeChange={handleCardSizeChange}
@@ -130,6 +154,37 @@ function Closet() {
           item={selectedItem}
           onClose={() => setSelectedItem(null)}
           onSave={handleItemSave}
+        />
+      )}
+
+      {addingNewItem && (
+        <ClosetItemDetailDialog
+          item={{
+            id: "",
+            brand: "",
+            category: "",
+            subcategory: "",
+            color: "",
+            size: "",
+            image: undefined,
+            source: "",
+            dateAcquired: new Date(),
+            secondhand: false,
+            purchasePrice: 0,
+            originalPrice: 0,
+            purchaseLocation: "",
+            material: "",
+            personalNote: "",
+            description: "",
+            condition: "",
+            conditionDetails: "",
+            seasons: [],
+            hidden: false,
+            tags: [],
+          }}
+          onClose={() => setAddingNewItem(false)}
+          onSave={handleItemAdd}
+          isEditing={true}
         />
       )}
     </div>

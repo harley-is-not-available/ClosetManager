@@ -5,18 +5,20 @@ interface ClosetItemDetailDialogProps {
   item: ClosetItem;
   onClose: () => void;
   onSave: (updatedItem: ClosetItem) => void;
+  isEditing?: boolean;
 }
 
 const ClosetItemDetailDialog: React.FC<ClosetItemDetailDialogProps> = ({
   item,
   onClose,
   onSave,
+  isEditing: initialIsEditing = false,
 }) => {
   // Track whether the image is valid (to handle cases where the image URL is broken)
   const [isImageValid, setIsImageValid] = useState(true);
 
   // Track whether we're in edit mode
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(initialIsEditing);
 
   // Track edited item data
   const [editedItem, setEditedItem] = useState<ClosetItem>(item);
