@@ -35,8 +35,10 @@ function ClosetItemListTile({
             />
           ) : (
             // Fallback UI if the image is missing or invalid
-            <div className="w-full h-full flex items-center justify-center text-base-content/50">
-              <span className="text-lg font-medium">No Image</span>
+            <div className="w-full h-full flex items-center justify-center bg-base-200/50">
+              <span className="text-lg font-medium text-base-content/70">
+                No Image
+              </span>
             </div>
           )}
           {/* Overlay component to display additional item details */}
