@@ -86,6 +86,16 @@ function Closet() {
     setCardSize(size);
   };
 
+  /**
+   * Handles saving changes to an item.
+   * @param updatedItem - The item with updated data.
+   */
+  const handleItemSave = (updatedItem: ClosetItem) => {
+    // In a real implementation, this would update the item in the backend
+    console.log("Item saved:", updatedItem);
+    setSelectedItem(null);
+  };
+
   return (
     <div className="p-6">
       <ClosetItemListToolbar onSearch={() => console.log()} />
@@ -115,10 +125,7 @@ function Closet() {
         <ClosetItemDetailDialog
           item={selectedItem}
           onClose={() => setSelectedItem(null)}
-          onEdit={() => {
-            // This will be implemented separately
-            console.log("Edit functionality to be implemented");
-          }}
+          onSave={handleItemSave}
         />
       )}
     </div>
