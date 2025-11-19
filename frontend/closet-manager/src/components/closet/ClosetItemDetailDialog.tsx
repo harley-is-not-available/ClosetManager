@@ -23,6 +23,9 @@ const ClosetItemDetailDialog: React.FC<ClosetItemDetailDialogProps> = ({
   // Track edited item data
   const [editedItem, setEditedItem] = useState<ClosetItem>(item);
 
+  // Track validation errors
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
   const handleInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -46,6 +49,14 @@ const ClosetItemDetailDialog: React.FC<ClosetItemDetailDialogProps> = ({
       setEditedItem({
         ...editedItem,
         [name]: value,
+      });
+    }
+
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors({
+        ...errors,
+        [name]: "",
       });
     }
   };
@@ -77,14 +88,32 @@ const ClosetItemDetailDialog: React.FC<ClosetItemDetailDialogProps> = ({
     });
   };
 
+  const validateFields = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!editedItem.brand.trim()) {
+      newErrors.brand = "Brand is required";
+    }
+
+    if (!editedItem.category.trim()) {
+      newErrors.category = "Category is required";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSave = () => {
-    onSave(editedItem);
-    setIsEditing(false);
+    if (validateFields()) {
+      onSave(editedItem);
+      setIsEditing(false);
+    }
   };
 
   const handleCancel = () => {
     setEditedItem(item);
     setIsEditing(false);
+    setErrors({});
   };
 
   if (isEditing) {
@@ -138,9 +167,14 @@ const ClosetItemDetailDialog: React.FC<ClosetItemDetailDialogProps> = ({
                       name="brand"
                       value={editedItem.brand}
                       onChange={handleInputChange}
-                      className="input input-bordered w-full"
+                      className={`input input-bordered w-full ${errors.brand ? "input-error" : ""}`}
                       placeholder="Brand name"
                     />
+                    {errors.brand && (
+                      <span className="text-error text-sm mt-1">
+                        {errors.brand}
+                      </span>
+                    )}
                   </div>
 
                   <div>
@@ -151,8 +185,9 @@ const ClosetItemDetailDialog: React.FC<ClosetItemDetailDialogProps> = ({
                       name="category"
                       value={editedItem.category}
                       onChange={handleInputChange}
-                      className="select select-bordered w-full"
+                      className={`select select-bordered w-full ${errors.category ? "select-error" : ""}`}
                     >
+                      <option value="">Select category</option>
                       <option value="tShirt">T-Shirt</option>
                       <option value="jeans">Jeans</option>
                       <option value="dress">Dress</option>
@@ -164,6 +199,11 @@ const ClosetItemDetailDialog: React.FC<ClosetItemDetailDialogProps> = ({
                       <option value="accessory">Accessory</option>
                       <option value="other">Other</option>
                     </select>
+                    {errors.category && (
+                      <span className="text-error text-sm mt-1">
+                        {errors.category}
+                      </span>
+                    )}
                   </div>
 
                   <div>
