@@ -4,7 +4,11 @@ import ClosetItemListToolbar from "../components/closet/closet-item-list/closet-
 import ClosetItemTileSizeController from "../components/closet/closet-item-list/closet-item-tile-size-controller";
 import { ItemSize, type ItemSizeKey } from "../types/enums/item_size";
 import { useAppDispatch, useAppSelector } from "../store/redux-hooks";
-import { getItemsFromAPI, selectClosetItems } from "../store/items-slice";
+import {
+  getItemsFromAPI,
+  selectClosetItems,
+  updateItem,
+} from "../store/items-slice";
 import ClosetItemDetailDialog from "../components/closet/ClosetItemDetailDialog";
 import type { ClosetItem } from "../types/closet/closet-item";
 
@@ -91,8 +95,8 @@ function Closet() {
    * @param updatedItem - The item with updated data.
    */
   const handleItemSave = (updatedItem: ClosetItem) => {
-    // In a real implementation, this would update the item in the backend
-    console.log("Item saved:", updatedItem);
+    // Update the item in the Redux store
+    dispatch(updateItem(updatedItem));
     setSelectedItem(null);
   };
 
