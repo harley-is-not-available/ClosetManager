@@ -5,6 +5,8 @@ import ClosetItemTileSizeController from "../components/closet/closet-item-list/
 import { ItemSize, type ItemSizeKey } from "../types/enums/item_size";
 import { useAppDispatch, useAppSelector } from "../store/redux-hooks";
 import { getItemsFromAPI, selectClosetItems } from "../store/items-slice";
+import ClosetItemDetailDialog from "../components/closet/ClosetItemDetailDialog";
+import type { ClosetItem } from "../types/closet/closet-item";
 
 /**
  * The main component for the Closet page.
@@ -17,6 +19,11 @@ function Closet() {
    * State to hold the current card size.
    */
   const [cardSize, setCardSize] = useState<ItemSizeKey>("md");
+
+  /**
+   * State to hold the currently selected item for detail view.
+   */
+  const [selectedItem, setSelectedItem] = useState<ClosetItem | null>(null);
 
   /**
    * Ref to track whether the first `useEffect` has completed.
@@ -96,9 +103,24 @@ function Closet() {
         }
       >
         {useAppSelector(selectClosetItems).map((item) => (
-          <ClosetItemListTile key={item.id} item={item} />
+          <ClosetItemListTile
+            key={item.id}
+            item={item}
+            onClick={() => setSelectedItem(item)}
+          />
         ))}
       </div>
+
+      {selectedItem && (
+        <ClosetItemDetailDialog
+          item={selectedItem}
+          onClose={() => setSelectedItem(null)}
+          onEdit={() => {
+            // This will be implemented separately
+            console.log("Edit functionality to be implemented");
+          }}
+        />
+      )}
     </div>
   );
 }
