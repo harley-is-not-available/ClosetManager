@@ -5,6 +5,22 @@ import type { ItemConditionKey } from "../types/enums/item_condition";
 import type { ItemSeasonKey } from "../types/enums/item_season";
 import type { ItemSubcategoryKey } from "../types/enums/item_subcategory";
 
+// Add mock upload function for image uploads
+export async function mockUploadImage(file: File): Promise<string> {
+  // Simulate network delay to mimic real API behavior
+  await new Promise((resolve) =>
+    setTimeout(resolve, 1000 + Math.random() * 1000),
+  );
+
+  // Convert file to data URL
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 export async function fetchClothingItems(): Promise<ClosetItem[]> {
   const brands = [
     "Adidas",
