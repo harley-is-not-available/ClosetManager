@@ -10,7 +10,7 @@ import {
   updateItem,
   addItem,
 } from "../store/items-slice";
-import ClosetItemDetailDialog from "../components/closet/ClosetItemDetailDialog";
+import { ClosetItemDetailDialog } from "../components/closet/ClosetItemDetailDialog/ClosetItemDetailDialog";
 import type { ClosetItem } from "../types/closet/closet-item";
 
 /**
