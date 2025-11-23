@@ -3,17 +3,17 @@ Base model class for all database models.
 This class provides common functionality and fields for all models.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
 from sqlalchemy import Column, DateTime
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 
 # Create the SQLAlchemy base class
 Base = declarative_base()
 
 
-class BaseModel(Base):
+class AbstractBaseModel(Base):
     """
     Base class for all models to inherit from.
     Provides common fields and methods for database models.
@@ -22,10 +22,11 @@ class BaseModel(Base):
     __abstract__ = True  # This tells SQLAlchemy this is an abstract base class
 
     # Common fields that all models should have
-    # Use proper typing for SQLAlchemy columns
-    created_at: datetime = Column(DateTime, default=datetime.utcnow)
-    updated_at: datetime = Column(
-        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+    created_at = Column(DateTime, default=datetime.now(timezone.utc))
+    updated_at = Column(
+        DateTime,
+        default=datetime.now(timezone.utc),
+        onupdate=datetime.now(timezone.utc),
     )
 
     def to_dict(self) -> dict:

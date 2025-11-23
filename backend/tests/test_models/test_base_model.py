@@ -2,11 +2,10 @@
 Tests for the base model configuration and database setup.
 """
 
-from unittest.mock import Mock
+from sqlalchemy import Column, Integer, String
+from sqlalchemy.orm import mapped_column
 
-import pytest
-
-from backend.models.base import Base, BaseModel
+from backend.models.abstract_base_model import AbstractBaseModel
 
 
 class TestBaseModel:
@@ -15,18 +14,27 @@ class TestBaseModel:
     def test_base_model_inheritance(self):
         """Test that BaseModel properly inherits from Base."""
 
-        # Create a simple model that inherits from BaseModel
-        class TestModel(BaseModel):
-            __tablename__ = "test"
+        # Create a simple model that inherits from BaseModel with proper primary key
+        class TestBaseModelInheritanceModel(AbstractBaseModel):
+            __tablename__ = "test_base_model_inheritance"
+            id = Column(Integer, primary_key=True)
 
         # Verify it inherits from Base
-        assert hasattr(TestModel, "__table__")
-        assert TestModel.__table__.name == "test"
+        assert hasattr(TestBaseModelInheritanceModel, "__table__")
+        assert (
+            TestBaseModelInheritanceModel.__table__.name
+            == "test_base_model_inheritance"
+        )
 
     def test_base_model_has_common_fields(self):
         """Test that BaseModel has the expected common fields."""
+
         # Create an instance of BaseModel
-        model_instance = BaseModel()
+        class TestBaseModelHasCommonFieldsModel(AbstractBaseModel):
+            __tablename__ = "test_base_model_has_common_fields"
+            id = Column(Integer, primary_key=True)
+
+        model_instance = TestBaseModelHasCommonFieldsModel()
 
         # Check that common fields exist
         assert hasattr(model_instance, "created_at")
@@ -35,13 +43,13 @@ class TestBaseModel:
     def test_base_model_to_dict_method(self):
         """Test the to_dict method of BaseModel."""
 
-        # Create a simple test instance
-        class TestModel(BaseModel):
-            __tablename__ = "test"
-            id: int = 1
-            name: str = "test"
+        # Create a simple test instance with proper column definitions
+        class TestBaseModelToDictMethodModel(AbstractBaseModel):
+            __tablename__ = "test_base_model_to_dict_method"
+            id = mapped_column(Integer, primary_key=True)
+            name = mapped_column(String(50))
 
-        model_instance = TestModel()
+        model_instance = TestBaseModelToDictMethodModel()
         model_instance.id = 1
         model_instance.name = "test"
 
@@ -56,17 +64,17 @@ class TestBaseModel:
     def test_base_model_repr_method(self):
         """Test the __repr__ method of BaseModel."""
 
-        class TestModel(BaseModel):
-            __tablename__ = "test"
-            id: int = 1
+        class TestBaseModelReprMethodModel(AbstractBaseModel):
+            __tablename__ = "test_base_model_repr_method"
+            id = mapped_column(Integer, primary_key=True)
 
-        model_instance = TestModel()
+        model_instance = TestBaseModelReprMethodModel()
         model_instance.id = 1
 
         # Test repr method
         result = repr(model_instance)
-        assert result.startswith("<TestModel(id=1)>")
-        assert "TestModel" in result
+        assert result.startswith("<TestBaseModelReprMethodModel(id=1)>")
+        assert "TestBaseModelReprMethodModel" in result
 
 
 class TestDatabaseConfiguration:

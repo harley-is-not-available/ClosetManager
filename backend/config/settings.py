@@ -4,7 +4,7 @@ Database configuration settings.
 
 from typing import Optional
 
-from pydantic import Field
+from pydantic import ConfigDict, Field
 from pydantic_settings import BaseSettings
 
 
@@ -36,11 +36,11 @@ class DatabaseSettings(BaseSettings):
         description="PostgreSQL maximum overflow connections",
     )
 
-    class Config:
-        """Configuration for the settings."""
-
-        env_file = ".env"
-        case_sensitive = False
+    # Use ConfigDict instead of class-based config (recommended for Pydantic v2)
+    model_config = ConfigDict(
+        env_file=".env",
+        case_sensitive=False,
+    )
 
 
 # Global settings instance

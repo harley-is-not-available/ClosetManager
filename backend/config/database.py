@@ -4,8 +4,7 @@ Database connection utilities for PostgreSQL and MongoDB.
 
 from motor.motor_asyncio import AsyncIOMotorClient
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import declarative_base, sessionmaker
 
 from .settings import settings
 
