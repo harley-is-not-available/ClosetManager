@@ -1,31 +1,47 @@
-import os
+"""
+Database configuration settings.
+"""
+
+from typing import Optional
 
 from pydantic import Field
 from pydantic_settings import BaseSettings
 
 
-class Settings(BaseSettings):
-    # Database configuration
-    DATABASE_URL: str = Field(
-        default="postgresql://user:password@localhost:5432/closet_manager"
+class DatabaseSettings(BaseSettings):
+    """Database settings for PostgreSQL and MongoDB connections."""
+
+    # PostgreSQL settings
+    postgresql_url: Optional[str] = Field(
+        default=None,
+        alias="POSTGRES_URL",
+        description="PostgreSQL database connection URL",
     )
 
-    # CORS settings
-    ALLOWED_ORIGINS: list = Field(default=["*"])
+    # MongoDB settings
+    mongodb_url: Optional[str] = Field(
+        default=None, alias="MONGODB_URL", description="MongoDB database connection URL"
+    )
 
-    # JWT settings
-    SECRET_KEY: str = Field(default="your-secret-key-here")
-    ALGORITHM: str = Field(default="HS256")
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=30)
+    # Database settings
+    postgresql_pool_size: int = Field(
+        default=5,
+        alias="POSTGRES_POOL_SIZE",
+        description="PostgreSQL connection pool size",
+    )
 
-    # Application settings
-    APP_NAME: str = Field(default="Closet Manager")
-    VERSION: str = Field(default="1.0.0")
+    postgresql_max_overflow: int = Field(
+        default=10,
+        alias="POSTGRES_MAX_OVERFLOW",
+        description="PostgreSQL maximum overflow connections",
+    )
 
     class Config:
+        """Configuration for the settings."""
+
         env_file = ".env"
-        env_file_encoding = "utf-8"
+        case_sensitive = False
 
 
-# Create settings instance
-settings = Settings()
+# Global settings instance
+settings = DatabaseSettings()

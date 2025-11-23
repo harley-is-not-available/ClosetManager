@@ -1,23 +1,44 @@
+"""
+Database connection utilities for PostgreSQL and MongoDB.
+"""
+
+from motor.motor_asyncio import AsyncIOMotorClient
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+
 from .settings import settings
 
-# Create database engine
+
+def get_database_url():
+    if settings.postgresql_url:
+        return settings.postgresql_url
+    return "postgresql://user:password@localhost:5432/closet_manager"
+
+
+# PostgreSQL setup
 engine = create_engine(
-    settings.DATABASE_URL,
-    pool_pre_ping=True,
-    pool_recycle=3600,
+    get_database_url(),
+    pool_size=settings.postgresql_pool_size,
+    max_overflow=settings.postgresql_max_overflow,
+    echo=False,
 )
 
-# Create session factory
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# Create base class for models
 Base = declarative_base()
 
-# Dependency to get database session
+# MongoDB setup
+mongo_client = AsyncIOMotorClient(settings.mongodb_url)
+db = mongo_client.closet_db
+
+
 def get_db():
+    """
+    Dependency to get database session for PostgreSQL.
+
+    Yields:
+        Session: Database session object
+    """
     db = SessionLocal()
     try:
         yield db
