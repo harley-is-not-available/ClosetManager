@@ -2,16 +2,10 @@
 User model for the Closet Management Application.
 """
 
-from datetime import datetime
-from typing import TYPE_CHECKING
-
-from sqlalchemy import Column, DateTime, Integer, String
+from sqlalchemy import Integer, String
 from sqlalchemy.orm import mapped_column, relationship
 
 from .abstract_base_model import AbstractBaseModel
-
-if TYPE_CHECKING:
-    from .clothing_item import ClothingItem
 
 
 class User(AbstractBaseModel):

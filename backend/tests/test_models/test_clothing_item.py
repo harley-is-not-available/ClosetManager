@@ -7,7 +7,7 @@ from datetime import datetime
 
 from backend.models.abstract_base_model import AbstractBaseModel
 from backend.models.clothing_item import ClothingItem
-from backend.models.user import User
+from backend.models.user import User  # noqa: F401
 
 
 class TestClothingItemModel:

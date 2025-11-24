@@ -4,7 +4,6 @@ This class provides common functionality and fields for all models.
 """
 
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING
 
 from sqlalchemy import Column, DateTime
 from sqlalchemy.orm import declarative_base
