@@ -13,6 +13,7 @@ export const DetailsTabEdit = ({
   onChange,
   errors,
 }: DetailsTabEditProps) => {
+  console.log(errors);
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div className="md:col-span-2">
