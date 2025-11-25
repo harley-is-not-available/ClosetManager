@@ -12,8 +12,6 @@ from starlette.testclient import TestClient
 from backend.api.v1.auth import get_auth_service
 from backend.api.v1.auth import router as auth_router
 from backend.api.v1.items import router as items_router
-from backend.api.v1.upload import get_upload_service
-from backend.api.v1.upload import router as upload_router
 from backend.config.database import Base, get_db
 from backend.models.clothing_item import ClothingItem as ClothingItemModel
 from backend.models.user import User
@@ -40,7 +38,6 @@ test_mongo_db = test_mongo_client.test_closet_db
 test_app = FastAPI()
 test_app.include_router(items_router, prefix="/api/v1/items", tags=["items"])
 test_app.include_router(auth_router, prefix="/api/v1/auth", tags=["auth"])
-test_app.include_router(upload_router, prefix="/api/v1/upload", tags=["upload"])
 
 
 @pytest.fixture(scope="function")
@@ -237,42 +234,42 @@ def override_auth_service(client, mock_auth_service_instance):
     client.app.dependency_overrides.pop(get_auth_service, None)
 
 
-@pytest.fixture
-def mock_upload_service_instance():
-    """
-    Fixture that provides a mocked instance of UploadService for modification.
-    """
-    # Create the mock instance with spec=True for safety
-    mock_instance = Mock(spec=UploadService)
+# @pytest.fixture
+# def mock_upload_service_instance():
+#     """
+#     Fixture that provides a mocked instance of UploadService for modification.
+#     """
+#     # Create the mock instance with spec=True for safety
+#     mock_instance = Mock(spec=UploadService)
 
-    # Yield the instance so the test can configure it (e.g., set return_value)
-    yield mock_instance
+#     # Yield the instance so the test can configure it (e.g., set return_value)
+#     yield mock_instance
 
-    # Cleanup (optional, but good practice): reset the mock state after the test
-    mock_instance.reset_mock()
+#     # Cleanup (optional, but good practice): reset the mock state after the test
+#     mock_instance.reset_mock()
 
 
-@pytest.fixture
-def override_upload_service(client, mock_upload_service_instance):
-    """
-    Fixture that applies the dependency override for UploadService.
-    It uses the mock instance provided by mock_upload_service_instance.
-    """
+# @pytest.fixture
+# def override_upload_service(client, mock_upload_service_instance):
+#     """
+#     Fixture that applies the dependency override for UploadService.
+#     It uses the mock instance provided by mock_upload_service_instance.
+#     """
 
-    # Define the callable function (the crucial part)
-    def mock_get_upload_service_callable():
-        return mock_upload_service_instance
+#     # Define the callable function (the crucial part)
+#     def mock_get_upload_service_callable():
+#         return mock_upload_service_instance
 
-    # Apply the override
-    client.app.dependency_overrides[get_upload_service] = (
-        mock_get_upload_service_callable
-    )
+#     # Apply the override
+#     client.app.dependency_overrides[get_upload_service] = (
+#         mock_get_upload_service_callable
+#     )
 
-    # Yield control back to the test
-    yield
+#     # Yield control back to the test
+#     yield
 
-    # Cleanup: Remove the override after the test is complete
-    client.app.dependency_overrides.pop(get_auth_service, None)
+#     # Cleanup: Remove the override after the test is complete
+#     client.app.dependency_overrides.pop(get_auth_service, None)
 
 
 @pytest.fixture

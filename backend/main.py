@@ -8,7 +8,7 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.api.v1 import auth, items, upload
+from backend.api.v1 import auth, items
 from backend.config.database import Base, engine
 
 # Create FastAPI application
@@ -30,7 +30,6 @@ app.add_middleware(
 # Include API routes
 app.include_router(items.router, prefix="/api/v1/items", tags=["items"])
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
-app.include_router(upload.router, prefix="/api/v1/upload", tags=["upload"])
 
 
 @app.get("/")
