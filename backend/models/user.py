@@ -21,6 +21,7 @@ class User(AbstractBaseModel):
     # Fields
     email = mapped_column(String(255), nullable=False, unique=True)
     hashed_password = mapped_column(String(255), nullable=False)
+    salt = mapped_column(String(255), nullable=False)
     full_name = mapped_column(String(255), nullable=False)
 
     # Relationships

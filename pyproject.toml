@@ -1,0 +1,19 @@
+# /home/admin/Projects/ClosetManager/pyproject.toml
+
+[build-system]
+requires = ["setuptools>=61.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "closet-manager"
+version = "0.1.0"
+description = "My personal clothing manager"
+
+[tool.setuptools.packages]
+# Tells setuptools to look for a package named 'backend' in the current directory (which is your project root).
+# Since you're running pip install -e . from the project root, this finds the backend/ folder.
+[tool.setuptools.packages.find]
+# Look for packages inside the directory named 'backend'
+where = ["backend"]
+# Include only packages found here
+include = ["backend*"]

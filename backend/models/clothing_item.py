@@ -39,4 +39,17 @@ class ClothingItem(AbstractBaseModel):
         Returns:
             str: String representation of the ClothingItem
         """
-        return f"<ClothingItem(id={getattr(self, 'id', 'N/A')}, name='{getattr(self, 'name', 'N/A')}')>"
+        return (
+            f"<ClothingItem("
+            f"id={getattr(self, 'id', 'N/A')}, "
+            f"name='{getattr(self, 'name', 'N/A')}', "
+            f"description='{getattr(self, 'description', 'N/A')}', "
+            f"category='{getattr(self, 'category', 'N/A')}', "
+            f"size='{getattr(self, 'size', 'N/A')}', "
+            f"color='{getattr(self, 'color', 'N/A')}', "
+            f"price={getattr(self, 'price', 'N/A')}, "
+            f"purchase_date={getattr(self, 'purchase_date', 'N/A')}, "
+            f"image_path='{getattr(self, 'image_path', 'N/A')}', "
+            f"user_id={getattr(self, 'user_id', 'N/A')}"
+            f")>"
+        )

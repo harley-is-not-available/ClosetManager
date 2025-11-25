@@ -5,11 +5,10 @@ This class provides common functionality and fields for all models.
 
 from datetime import datetime, timezone
 
-from sqlalchemy import Column, DateTime
-from sqlalchemy.orm import declarative_base
+from sqlalchemy import DateTime
+from sqlalchemy.orm import mapped_column
 
-# Create the SQLAlchemy base class
-Base = declarative_base()
+from backend.config.database import Base
 
 
 class AbstractBaseModel(Base):
@@ -21,8 +20,8 @@ class AbstractBaseModel(Base):
     __abstract__ = True  # This tells SQLAlchemy this is an abstract base class
 
     # Common fields that all models should have
-    created_at = Column(DateTime, default=datetime.now(timezone.utc))
-    updated_at = Column(
+    created_at = mapped_column(DateTime, default=datetime.now(timezone.utc))
+    updated_at = mapped_column(
         DateTime,
         default=datetime.now(timezone.utc),
         onupdate=datetime.now(timezone.utc),

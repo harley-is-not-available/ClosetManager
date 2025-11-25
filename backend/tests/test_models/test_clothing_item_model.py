@@ -125,13 +125,17 @@ class TestClothingItemModel:
 
     def test_clothing_item_repr_method(self):
         """Test the __repr__ method of ClothingItem."""
+
         item = ClothingItem()
         item.id = 1
         item.name = "Test T-Shirt"
+        item.user_id = 1
 
         # Test repr method
         result = repr(item)
-        assert result.startswith("<ClothingItem(id=1, name='Test T-Shirt')>")
+        assert result.startswith(
+            "<ClothingItem(id=1, name='Test T-Shirt', description='None', category='None', size='None', color='None', price=None, purchase_date=None, image_path='None', user_id=1)"
+        )
         assert "ClothingItem" in result
 
 
