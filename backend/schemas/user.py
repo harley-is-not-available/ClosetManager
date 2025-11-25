@@ -21,9 +21,11 @@ class UserCreate(BaseModel):
     )
 
     # Required fields
-    email: EmailStr = Field(..., description="Email address of the user")
-    password: str = Field(..., description="Password for the user account")
-    full_name: str = Field(..., description="Full name of the user")
+    email: EmailStr = Field(..., description="Email address of the user", min_length=1)
+    password: str = Field(
+        ..., description="Password for the user account", min_length=1
+    )
+    full_name: str = Field(..., description="Full name of the user", min_length=1)
 
 
 class UserLogin(BaseModel):
@@ -38,8 +40,10 @@ class UserLogin(BaseModel):
     )
 
     # Required fields
-    email: EmailStr = Field(..., description="Email address of the user")
-    password: str = Field(..., description="Password for the user account")
+    email: EmailStr = Field(..., description="Email address of the user", min_length=1)
+    password: str = Field(
+        ..., description="Password for the user account", min_length=1
+    )
 
 
 class UserResponse(BaseModel):
