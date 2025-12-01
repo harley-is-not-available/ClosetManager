@@ -4,7 +4,7 @@ These tests define the requirements for the User model.
 """
 
 from backend.models.abstract_base_model import AbstractBaseModel
-from backend.models.clothing_item import ClothingItem  # noqa: F401
+from backend.models.clothing_item_model import ClothingItemModel  # noqa: F401
 from backend.models.user import User
 
 

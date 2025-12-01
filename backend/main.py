@@ -3,8 +3,6 @@ Main application file for the Closet Management Application.
 This file sets up the FastAPI application with all routes and configurations.
 """
 
-import os
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 

@@ -100,14 +100,15 @@ class TestUserCreateSchema:
     def test_user_create_password_validation(self):
         """Test that UserCreate validates password requirements."""
         # Test valid password
+
         user = UserCreate(
             email="test@example.com", password="password123", full_name="Test User"
         )
         assert user.password == "password123"
 
-        # Test that password can be empty (in theory, but would need schema definition)
-        user = UserCreate(email="test@example.com", password="", full_name="Test User")
-        assert user.password == ""
+        # Test that password cannot be empty
+        with pytest.raises(ValidationError):
+            UserCreate(email="test@example.com", password="", full_name="Test User")
 
     def test_user_create_missing_required_fields(self):
         """Test that UserCreate requires all required fields."""

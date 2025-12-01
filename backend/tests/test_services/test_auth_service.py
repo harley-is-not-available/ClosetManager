@@ -234,13 +234,14 @@ class TestAuthServiceErrorConditions:
         """Test registering user with empty password."""
         auth_service = AuthService(db_session)
 
-        user_data = UserCreate(
-            email="empty@example.com", password="", full_name="Test User"
-        )
+        # Should raise validation error from Pydantic
+        with pytest.raises(ValidationError):
+            user_data = UserCreate(
+                email="empty@example.com", password="", full_name="Test User"
+            )
 
-        # Should work since password validation is handled in the schema
-        result = auth_service.register_user(user_data)
-        assert result.email == user_data.email
+            result = auth_service.register_user(user_data)
+            assert result.email == user_data.email
 
     def test_get_user_by_id_negative_id(self, db_session: Session):
         """Test getting user with negative ID."""

@@ -35,7 +35,8 @@ class TestClothingItemCreateSchema:
             "color": "Blue",
             "price": 29.99,
             "purchase_date": datetime.now(),
-            "image_path": "/images/test.jpg",
+            "image_data": "/images/test.jpg",
+            "image_name": "test_image.jpg",
         }
 
         item = ClothingItemCreate(**item_data)
@@ -47,7 +48,8 @@ class TestClothingItemCreateSchema:
         assert "color" in ClothingItemCreate.model_fields
         assert "price" in ClothingItemCreate.model_fields
         assert "purchase_date" in ClothingItemCreate.model_fields
-        assert "image_path" in ClothingItemCreate.model_fields
+        assert "image_data" in ClothingItemCreate.model_fields
+        assert "image_name" in ClothingItemCreate.model_fields
 
         # Values should be set correctly
         assert item.description == "A test t-shirt"
@@ -55,7 +57,8 @@ class TestClothingItemCreateSchema:
         assert item.size == "M"
         assert item.color == "Blue"
         assert item.price == 29.99
-        assert item.image_path == "/images/test.jpg"
+        assert item.image_data == "/images/test.jpg"
+        assert item.image_name == "test_image.jpg"
 
     def test_clothing_item_create_validation(self):
         """Test that ClothingItemCreate validates input correctly."""
@@ -76,7 +79,8 @@ class TestClothingItemCreateSchema:
             "color": "Blue",
             "price": 29.99,
             "purchase_date": datetime.now(),
-            "image_path": "/images/test.jpg",
+            "image_data": "/images/test.jpg",
+            "image_name": "test_image.jpg",
         }
 
         item_full = ClothingItemCreate(**item_data_full)
@@ -87,7 +91,8 @@ class TestClothingItemCreateSchema:
         assert item_full.size == "M"
         assert item_full.color == "Blue"
         assert item_full.price == 29.99
-        assert item_full.image_path == "/images/test.jpg"
+        assert item_full.image_data == "/images/test.jpg"
+        assert item_full.image_name == "test_image.jpg"
 
     def test_clothing_item_create_field_types(self):
         """Test that ClothingItemCreate fields have correct types."""
@@ -120,7 +125,8 @@ class TestClothingItemCreateSchema:
             size=None,
             color=None,
             purchase_date=None,
-            image_path=None,
+            image_data=None,
+            image_name=None,
         )
         assert item.price == 29.99
 
@@ -134,7 +140,8 @@ class TestClothingItemCreateSchema:
             size=None,
             color=None,
             purchase_date=None,
-            image_path=None,
+            image_data=None,
+            image_name=None,
         )
         assert item.price == 50
 
@@ -148,9 +155,25 @@ class TestClothingItemCreateSchema:
             color=None,
             price=None,
             purchase_date=None,
-            image_path=None,
+            image_data=None,
+            image_name=None,
         )
         assert item.size == "L"
+
+        # Test valid image_name
+        item = ClothingItemCreate(
+            name="Test",
+            user_id=1,
+            image_name="test_image.jpg",
+            description=None,
+            category=None,
+            size=None,
+            color=None,
+            price=None,
+            purchase_date=None,
+            image_data=None,
+        )
+        assert item.image_name == "test_image.jpg"
 
     def test_clothing_item_create_missing_required_fields(self):
         """Test that ClothingItemCreate requires name and user_id."""
@@ -164,7 +187,8 @@ class TestClothingItemCreateSchema:
                 color=None,
                 price=None,
                 purchase_date=None,
-                image_path=None,
+                image_data=None,
+                image_name=None,
             )  # type: ignore[reportCallIssue]
 
         # Test that user_id is required
@@ -177,7 +201,7 @@ class TestClothingItemCreateSchema:
                 color=None,
                 price=None,
                 purchase_date=None,
-                image_path=None,
+                image_data=None,
             )  # type: ignore[reportCallIssue]
 
         # Test that valid data passes
@@ -190,7 +214,8 @@ class TestClothingItemCreateSchema:
             color=None,
             price=None,
             purchase_date=None,
-            image_path=None,
+            image_data=None,
+            image_name=None,
         )
         assert item.name == "Test T-Shirt"
         assert item.user_id == 1
@@ -207,7 +232,8 @@ class TestClothingItemCreateSchema:
             color=None,
             price=None,
             purchase_date=None,
-            image_path=None,
+            image_data=None,
+            image_name=None,
         )
         assert item.name == "Test T-Shirt"
         assert item.user_id == 1
@@ -218,7 +244,7 @@ class TestClothingItemCreateSchema:
         assert item.color is None
         assert item.price is None
         assert item.purchase_date is None
-        assert item.image_path is None
+        assert item.image_data is None
 
     def test_clothing_item_create_max_length_validation(self):
         """Test that ClothingItemCreate validates field length constraints."""
@@ -233,7 +259,8 @@ class TestClothingItemCreateSchema:
             color=None,
             price=None,
             purchase_date=None,
-            image_path=None,
+            image_data=None,
+            image_name=None,
         )
         assert item.name == long_name
 
@@ -247,7 +274,8 @@ class TestClothingItemCreateSchema:
             description=None,
             price=None,
             purchase_date=None,
-            image_path=None,
+            image_data=None,
+            image_name=None,
         )
         assert item.category == "Tops"
         assert item.size == "M"
@@ -269,7 +297,7 @@ class TestClothingItemSchema:
             "color": "Blue",
             "price": 29.99,
             "purchase_date": datetime.now(),
-            "image_path": "/images/test.jpg",
+            "image_data": "/images/test.jpg",
             "user_id": 1,
             "created_at": datetime.now(),
             "updated_at": datetime.now(),
@@ -286,7 +314,8 @@ class TestClothingItemSchema:
         assert "color" in ClothingItem.model_fields
         assert "price" in ClothingItem.model_fields
         assert "purchase_date" in ClothingItem.model_fields
-        assert "image_path" in ClothingItem.model_fields
+        assert "image_data" in ClothingItem.model_fields
+        assert "image_name" in ClothingItem.model_fields
         assert "user_id" in ClothingItem.model_fields
         assert "created_at" in ClothingItem.model_fields
         assert "updated_at" in ClothingItem.model_fields
@@ -313,7 +342,8 @@ class TestClothingItemSchema:
             "color",
             "price",
             "purchase_date",
-            "image_path",
+            "image_data",
+            "image_name",
             "user_id",
             "created_at",
             "updated_at",
@@ -332,7 +362,8 @@ class TestClothingItemSchema:
             color=None,
             price=None,
             purchase_date=None,
-            image_path=None,
+            image_data=None,
+            image_name=None,
         )
 
         for field in expected_fields:
@@ -386,7 +417,7 @@ class TestRequiredFieldEnforcement:
                 color=None,
                 price=None,
                 purchase_date=None,
-                image_path=None,
+                image_data=None,
             )
 
         # Test that user_id is required
@@ -399,7 +430,8 @@ class TestRequiredFieldEnforcement:
                 color=None,
                 price=None,
                 purchase_date=None,
-                image_path=None,
+                image_data=None,
+                image_name=None,
             )  # type: ignore[reportCallIssue]
 
         # Test that valid data passes
@@ -412,7 +444,8 @@ class TestRequiredFieldEnforcement:
             color=None,
             price=None,
             purchase_date=None,
-            image_path=None,
+            image_data=None,
+            image_name=None,
         )
         assert item.name == "Test T-Shirt"
         assert item.user_id == 1
@@ -445,7 +478,8 @@ class TestRequiredFieldEnforcement:
             color=None,
             price=None,
             purchase_date=None,
-            image_path=None,
+            image_data=None,
+            image_name=None,
         )
         assert item.name == "Test T-Shirt"
         assert item.user_id == 1
@@ -456,7 +490,7 @@ class TestRequiredFieldEnforcement:
         assert item.color is None
         assert item.price is None
         assert item.purchase_date is None
-        assert item.image_path is None
+        assert item.image_data is None
 
     def test_clothing_item_create_valid_field_ranges(self):
         """Test that ClothingItemCreate validates field ranges."""
@@ -470,7 +504,8 @@ class TestRequiredFieldEnforcement:
             size=None,
             color=None,
             purchase_date=None,
-            image_path=None,
+            image_data=None,
+            image_name=None,
         )
         assert item.price == 0
 
@@ -483,7 +518,8 @@ class TestRequiredFieldEnforcement:
             size=None,
             color=None,
             purchase_date=None,
-            image_path=None,
+            image_data=None,
+            image_name=None,
         )
         assert item.price == 999999.99
 
@@ -497,7 +533,8 @@ class TestRequiredFieldEnforcement:
             price=None,
             color=None,
             purchase_date=None,
-            image_path=None,
+            image_data=None,
+            image_name=None,
         )
         assert item.size == "XS"
 
@@ -510,7 +547,8 @@ class TestRequiredFieldEnforcement:
             price=None,
             color=None,
             purchase_date=None,
-            image_path=None,
+            image_data=None,
+            image_name=None,
         )
         assert item.size == "XXL"
 

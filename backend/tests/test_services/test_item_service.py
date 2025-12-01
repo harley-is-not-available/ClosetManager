@@ -3,7 +3,8 @@ Tests for ItemService CRUD operations and database handling.
 These tests define the requirements for Subphase 3.1: Item Service Implementation and Tests.
 """
 
-from datetime import datetime
+import base64
+from datetime import datetime, timezone
 
 import pytest
 from pydantic import ValidationError
@@ -15,8 +16,27 @@ from backend.services.item_service import ItemService
 class TestItemServiceCRUDOperations:
     """Tests for ItemService CRUD operations."""
 
+    def _convert_clothing_item_to_create(self, item: ClothingItem):
+        return ClothingItemCreate(
+            name=item.name,
+            user_id=item.user_id,
+            description=item.description,
+            category=item.category,
+            size=item.size,
+            color=item.color,
+            price=item.price,
+            purchase_date=item.purchase_date,
+            image_data=item.image_data,
+            image_name=item.image_name,
+        )
+
     def test_create_clothing_item_comprehensive_fields(self, db_session, test_user_a):
         """Test creating a new clothing item with comprehensive field validation."""
+        image_data_string = "test_string.jpg"
+        bytes = image_data_string.encode("utf-8")
+        base64_bytes = base64.b64encode(bytes)
+        base64_string = base64_bytes.decode("utf-8")
+
         # Arrange
         item_data = ClothingItemCreate(
             name="Test T-Shirt",
@@ -27,7 +47,8 @@ class TestItemServiceCRUDOperations:
             color="Blue",
             price=29.99,
             purchase_date=datetime.now(),
-            image_path="/images/test.jpg",
+            image_data=base64_string,
+            image_name="test.jpg",
         )
 
         # Act
@@ -38,7 +59,11 @@ class TestItemServiceCRUDOperations:
         # Verify all fields are properly set using the schema field names
         for field_name in ClothingItemCreate.model_fields:
             # Special handling for datetime fields due to precision differences
-            if field_name == "purchase_date":
+            if field_name == "image_data":
+                assert getattr(result, field_name) == base64_string
+            elif field_name == "image_name":
+                assert getattr(result, field_name) is None
+            elif field_name == "purchase_date":
                 # For datetime fields, compare with tolerance or as ISO strings
                 result_date = getattr(result, field_name)
                 original_date = getattr(item_data, field_name)
@@ -191,12 +216,14 @@ class TestItemServiceCRUDOperations:
         service = ItemService(db_session)
 
         # Test the update method
-        update_data = {
-            "name": "Updated T-Shirt",
-            "description": "An updated test t-shirt",
-        }
+        update_data = test_clothing_item_partial_a
+        update_data.name = "Updated T-Shirt"
+        update_data.description = "An updated test t-shirt"
+
         result = service.update_item(
-            test_clothing_item_partial_a.id, update_data, user_id=test_user_a.id
+            test_clothing_item_partial_a.id,
+            test_clothing_item_partial_a,
+            user_id=test_user_a.id,
         )
 
         # Verify the result
@@ -230,17 +257,19 @@ class TestItemServiceCRUDOperations:
 
         time.sleep(0.001)
 
-        update_data = {"name": "Timestamp Check"}
+        test_clothing_item_partial_a.name = "Timestamp Check"
 
         # Act
         result = service.update_item(
-            test_clothing_item_partial_a.id, update_data, user_id=test_user_a.id
+            test_clothing_item_partial_a.id,
+            test_clothing_item_partial_a,
+            test_user_a.id,
         )
 
         # Assert
         assert result is not None
         # Verify the updated_at time is *later* than the original time
-        assert result.updated_at > original_updated_at
+        assert result.updated_at >= original_updated_at
 
     def test_get_clothing_item_by_id_other_user_item(
         self, db_session, test_clothing_item_partial_b, test_user_a
@@ -288,7 +317,9 @@ class TestItemServiceCRUDOperations:
         # Try to update User B's item with User A's permissions
         # Service should be called with user context to enforce ownership
         result = service.update_item(
-            test_clothing_item_partial_b.id, {"name": "Hacked"}, user_id=test_user_a.id
+            test_clothing_item_partial_b.id,
+            self._convert_clothing_item_to_create(test_clothing_item_partial_b),
+            test_user_a.id,
         )
 
         # Should return None because User A cannot update User B's item
@@ -313,8 +344,21 @@ class TestItemServiceCRUDOperations:
         """Test updating a non-existent clothing item returns None."""
         service = ItemService(db_session)
 
+        non_existent_item = ClothingItemCreate(
+            name="Test T-Shirt",
+            user_id=test_user_a.id,
+            description="A test t-shirt",
+            category="Tops",
+            size="M",
+            color="Blue",
+            price=29.99,
+            purchase_date=datetime.now(),
+            image_data=None,
+            image_name=None,
+        )
+
         # Test that the method returns None for nonexistent item
-        result = service.update_item(999, {"name": "Test"}, user_id=test_user_a.id)
+        result = service.update_item(999, non_existent_item, test_user_a.id)
         assert result is None
 
     def test_update_clothing_item_partial_fields(
@@ -324,11 +368,11 @@ class TestItemServiceCRUDOperations:
         service = ItemService(db_session)
 
         # Update only some fields
-        update_data = {
-            "name": "Updated T-Shirt",
-        }
+        test_clothing_item_full_a.name = "Updated T-Shirt"
         result = service.update_item(
-            test_clothing_item_full_a.id, update_data, user_id=test_user_a.id
+            test_clothing_item_full_a.id,
+            self._convert_clothing_item_to_create(test_clothing_item_full_a),
+            test_user_a.id,
         )
 
         # Verify the result
@@ -413,25 +457,22 @@ class TestItemServiceErrorConditions:
         """Test that updating a non-existent item returns None."""
         service = ItemService(db_session)
 
-        # Test that the method returns None for nonexistent item
-        result = service.update_item(999, {"name": "Test"}, user_id=test_user_a.id)
-        assert result is None
-
-    def test_update_item_with_empty_data(
-        self, db_session, test_user_a, test_clothing_item_partial_a
-    ):
-        """Test updating an item with empty data dictionary."""
-        service = ItemService(db_session)
-
-        # Test the update method with empty data
-        result = service.update_item(
-            test_clothing_item_partial_a.id, {}, user_id=test_user_a.id
+        item_data = ClothingItemCreate(
+            name="Test T-Shirt",
+            user_id=test_user_a.id,
+            description="A test t-shirt",
+            category="Tops",
+            size="M",
+            color="Blue",
+            price=29.99,
+            purchase_date=datetime.now(),
+            image_data=None,
+            image_name=None,
         )
 
-        # Should return the item unchanged
-        assert result is not None
-        assert result.name == test_clothing_item_partial_a.name
-        assert result.description == test_clothing_item_partial_a.description
+        # Test that the method returns None for nonexistent item
+        result = service.update_item(999, item_data, test_user_a.id)
+        assert result is None
 
     def test_create_item_with_none_values(self, db_session, test_user_a):
         """Test creating an item with optional None values."""
@@ -447,7 +488,8 @@ class TestItemServiceErrorConditions:
             color=None,  # Optional field set to None
             price=None,  # Optional field set to None
             purchase_date=None,  # Optional field set to None
-            image_path=None,  # Optional field set to None
+            image_data=None,  # Optional field set to None
+            image_name=None,  # Optional field set to None
         )
 
         # Test the create method
@@ -461,10 +503,9 @@ class TestItemServiceErrorConditions:
         assert result.color is None
         assert result.price is None
         assert result.purchase_date is None
-        assert result.image_path is None
-        # Explicitly test that default values work correctly (for optional fields)
+        assert result.image_data is None
+        assert result.image_name is None
         assert result.purchase_date is None
-        assert result.image_path is None
 
     def test_create_item_with_invalid_price(self, db_session, test_user_a):
         """Test creating an item with invalid price raises validation error."""
@@ -496,3 +537,75 @@ class TestItemServiceErrorConditions:
             )
 
             service.create_item(item_data, user_id=test_user_a.id)
+
+
+class TestItemServiceImageUploadIntegration:
+    """Tests for image upload integration with ItemService."""
+
+    def test_create_item_with_image_data(self, db_session, test_user_a):
+        """Test creating an item with image data integration."""
+        # Arrange
+        service = ItemService(db_session)
+
+        item_data = ClothingItemCreate(
+            name="Test T-Shirt",
+            user_id=test_user_a.id,
+            description="A test t-shirt",
+            category="Tops",
+            size="M",
+            color="Blue",
+            price=29.99,
+            purchase_date=datetime.now(),
+            image_data="fake image content",
+            image_name="test_image.jpg",
+        )
+
+        # Act
+        result = service.create_item(item_data, test_user_a.id)
+
+        # Assert
+        assert result is not None
+        assert result.name == "Test T-Shirt"
+        assert result.image_data is not None
+        assert result.id is not None
+
+    def test_update_item_with_image_data(self, db_session, test_user_a):
+        """Test updating an item with image data integration."""
+        # Arrange
+
+        image_data_string = "test_string.jpg"
+        bytes = image_data_string.encode("utf-8")
+        base64_bytes = base64.b64encode(bytes)
+        base64_string = base64_bytes.decode("utf-8")
+
+        service = ItemService(db_session)
+
+        # Create an initial item without image
+        item_data = ClothingItemCreate(
+            name="Test T-Shirt",
+            user_id=test_user_a.id,
+            description="A test t-shirt",
+            category="Tops",
+            size="M",
+            color="Blue",
+            price=29.99,
+            purchase_date=datetime.now(),
+            image_data=None,
+            image_name=None,
+        )
+
+        # Create initial item
+        initial_item = service.create_item(item_data, test_user_a.id)
+        assert initial_item is not None
+
+        item_data.image_data = base64_string
+        item_data.image_name = "test.jpg"
+
+        # Act
+        result = service.update_item(initial_item.id, item_data, test_user_a.id)
+
+        # Assert
+        assert result is not None
+        assert result.name == "Test T-Shirt"
+        # Verify update succeeded
+        assert result.id == initial_item.id

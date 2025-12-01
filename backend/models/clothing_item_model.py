@@ -8,9 +8,9 @@ from sqlalchemy.orm import mapped_column, relationship
 from .abstract_base_model import AbstractBaseModel
 
 
-class ClothingItem(AbstractBaseModel):
+class ClothingItemModel(AbstractBaseModel):
     """
-    ClothingItem model representing individual clothing items.
+    ClothingItemModel model representing individual clothing items.
     """
 
     __tablename__ = "clothing_items"
@@ -40,7 +40,7 @@ class ClothingItem(AbstractBaseModel):
             str: String representation of the ClothingItem
         """
         return (
-            f"<ClothingItem("
+            f"<ClothingItemModel("
             f"id={getattr(self, 'id', 'N/A')}, "
             f"name='{getattr(self, 'name', 'N/A')}', "
             f"description='{getattr(self, 'description', 'N/A')}', "

@@ -1,28 +1,28 @@
 """
-Tests for the ClothingItem model implementation.
-These tests define the requirements for the ClothingItem model.
+Tests for the ClothingItemModel model implementation.
+These tests define the requirements for the ClothingItemModel model.
 """
 
 from datetime import datetime
 
 from backend.models.abstract_base_model import AbstractBaseModel
-from backend.models.clothing_item import ClothingItem
+from backend.models.clothing_item_model import ClothingItemModel
 from backend.models.user import User  # noqa: F401
 
 
 class TestClothingItemModel:
-    """Tests for the ClothingItem model structure and fields."""
+    """Tests for the ClothingItemModel model structure and fields."""
 
     def test_clothing_item_inheritance(self):
-        """Test that ClothingItem properly inherits from AbstractBaseModel."""
+        """Test that ClothingItemModel properly inherits from AbstractBaseModel."""
         # Verify it inherits from BaseModel
-        assert issubclass(ClothingItem, AbstractBaseModel)
-        assert hasattr(ClothingItem, "__table__")
+        assert issubclass(ClothingItemModel, AbstractBaseModel)
+        assert hasattr(ClothingItemModel, "__table__")
 
     def test_clothing_item_has_required_fields(self):
-        """Test that ClothingItem has the expected required fields."""
-        # Create an instance of ClothingItem
-        item = ClothingItem()
+        """Test that ClothingItemModel has the expected required fields."""
+        # Create an instance of ClothingItemModel
+        item = ClothingItemModel()
 
         # Check that required fields exist
         assert hasattr(item, "id")
@@ -42,62 +42,62 @@ class TestClothingItemModel:
         # Assuming the model has proper SQLAlchemy column definitions
 
         # Test primary key
-        assert hasattr(ClothingItem, "id")
+        assert hasattr(ClothingItemModel, "id")
 
         # Test string fields
-        assert hasattr(ClothingItem, "name")
-        assert hasattr(ClothingItem, "category")
-        assert hasattr(ClothingItem, "size")
-        assert hasattr(ClothingItem, "color")
-        assert hasattr(ClothingItem, "image_path")
+        assert hasattr(ClothingItemModel, "name")
+        assert hasattr(ClothingItemModel, "category")
+        assert hasattr(ClothingItemModel, "size")
+        assert hasattr(ClothingItemModel, "color")
+        assert hasattr(ClothingItemModel, "image_path")
 
         # Test numeric fields
-        assert hasattr(ClothingItem, "price")
+        assert hasattr(ClothingItemModel, "price")
 
         # Test date fields
-        assert hasattr(ClothingItem, "purchase_date")
+        assert hasattr(ClothingItemModel, "purchase_date")
 
         # Test text field
-        assert hasattr(ClothingItem, "description")
+        assert hasattr(ClothingItemModel, "description")
 
     def test_clothing_item_relationships(self):
-        """Test that ClothingItem has proper relationships."""
+        """Test that ClothingItemModel has proper relationships."""
         # Verify the user relationship exists
-        assert hasattr(ClothingItem, "user")
+        assert hasattr(ClothingItemModel, "user")
 
         # Verify that the relationship is correctly defined
         # Check that the foreign key relationship to User is defined
-        assert hasattr(ClothingItem, "user_id")
+        assert hasattr(ClothingItemModel, "user_id")
 
     def test_clothing_item_constraints(self):
-        """Test that ClothingItem has proper constraints."""
+        """Test that ClothingItemModel has proper constraints."""
         # Test required fields constraints (not null)
         # Test that name is required
-        assert hasattr(ClothingItem, "name")
+        assert hasattr(ClothingItemModel, "name")
 
         # Test that user_id is required (foreign key)
-        assert hasattr(ClothingItem, "user_id")
+        assert hasattr(ClothingItemModel, "user_id")
 
     def test_clothing_item_postgresql_annotations(self):
-        """Test that ClothingItem uses PostgreSQL-specific annotations."""
+        """Test that ClothingItemModel uses PostgreSQL-specific annotations."""
         # This tests PostgreSQL-specific annotations that should be used
         # For example, using SQLAlchemy PostgreSQL-specific data types if needed
 
         # Check that appropriate column definitions exist
-        assert hasattr(ClothingItem, "id")
-        assert hasattr(ClothingItem, "name")
-        assert hasattr(ClothingItem, "description")
-        assert hasattr(ClothingItem, "category")
-        assert hasattr(ClothingItem, "size")
-        assert hasattr(ClothingItem, "color")
-        assert hasattr(ClothingItem, "price")
-        assert hasattr(ClothingItem, "purchase_date")
-        assert hasattr(ClothingItem, "image_path")
+        assert hasattr(ClothingItemModel, "id")
+        assert hasattr(ClothingItemModel, "name")
+        assert hasattr(ClothingItemModel, "description")
+        assert hasattr(ClothingItemModel, "category")
+        assert hasattr(ClothingItemModel, "size")
+        assert hasattr(ClothingItemModel, "color")
+        assert hasattr(ClothingItemModel, "price")
+        assert hasattr(ClothingItemModel, "purchase_date")
+        assert hasattr(ClothingItemModel, "image_path")
 
     def test_clothing_item_to_dict_method(self):
-        """Test the to_dict method of ClothingItem."""
-        # Create a ClothingItem instance with some test data
-        item = ClothingItem()
+        """Test the to_dict method of ClothingItemModel."""
+        # Create a ClothingItemModel instance with some test data
+        item = ClothingItemModel()
         item.id = 1
         item.name = "Test T-Shirt"
         item.description = "A test t-shirt"
@@ -124,32 +124,33 @@ class TestClothingItemModel:
         assert "user_id" in result
 
     def test_clothing_item_repr_method(self):
-        """Test the __repr__ method of ClothingItem."""
+        """Test the __repr__ method of ClothingItemModel."""
 
-        item = ClothingItem()
+        item = ClothingItemModel()
         item.id = 1
         item.name = "Test T-Shirt"
         item.user_id = 1
 
         # Test repr method
         result = repr(item)
+        print(result)
         assert result.startswith(
-            "<ClothingItem(id=1, name='Test T-Shirt', description='None', category='None', size='None', color='None', price=None, purchase_date=None, image_path='None', user_id=1)"
+            "<ClothingItemModel(id=1, name='Test T-Shirt', description='None', category='None', size='None', color='None', price=None, purchase_date=None, image_path='None', user_id=1)"
         )
-        assert "ClothingItem" in result
+        assert "ClothingItemModel" in result
 
 
-class TestClothingItemDatabaseIntegration:
-    """Tests for ClothingItem database integration and constraints."""
+class TestClothingItemModelDatabaseIntegration:
+    """Tests for ClothingItemModel database integration and constraints."""
 
     def test_database_table_name(self):
-        """Test that ClothingItem has correct table name."""
-        assert ClothingItem.__table__.name == "clothing_items"
+        """Test that ClothingItemModel has correct table name."""
+        assert ClothingItemModel.__table__.name == "clothing_items"
 
     def test_database_column_definitions(self):
-        """Test that ClothingItem has proper database column definitions."""
+        """Test that ClothingItemModel has proper database column definitions."""
         # Check for required columns
-        table = ClothingItem.__table__
+        table = ClothingItemModel.__table__
         assert "id" in table.columns
         assert "name" in table.columns
         assert "description" in table.columns
@@ -166,7 +167,7 @@ class TestClothingItemDatabaseIntegration:
     def test_database_relationship_integrity(self):
         """Test that database relationships are properly defined."""
         # Check foreign key relationship to User
-        table = ClothingItem.__table__
+        table = ClothingItemModel.__table__
         user_id_column = table.columns.get("user_id")
         assert user_id_column is not None
         assert user_id_column.foreign_keys is not None
@@ -174,7 +175,7 @@ class TestClothingItemDatabaseIntegration:
     def test_database_constraints(self):
         """Test that database constraints are properly defined."""
         # Check that name is not null
-        table = ClothingItem.__table__
+        table = ClothingItemModel.__table__
         name_column = table.columns.get("name")
         assert name_column is not None
         assert name_column.nullable is False
@@ -185,9 +186,9 @@ class TestClothingItemDatabaseIntegration:
         assert user_id_column.nullable is False
 
     def test_database_migration_readiness(self):
-        """Test that ClothingItem is ready for database migrations."""
+        """Test that ClothingItemModel is ready for database migrations."""
         # Verify all fields are properly defined for migration
-        item = ClothingItem()
+        item = ClothingItemModel()
         assert hasattr(item, "id")
         assert hasattr(item, "name")
         assert hasattr(item, "description")

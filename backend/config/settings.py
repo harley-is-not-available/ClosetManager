@@ -36,8 +36,7 @@ class DatabaseSettings(BaseSettings):
         description="PostgreSQL maximum overflow connections",
     )
 
-    # Use ConfigDict instead of class-based config (recommended for Pydantic v2)
-    model_config = ConfigDict(
+    model_config = ConfigDict(  # type: ignore[reportCallIssue]
         env_file=".env",
         case_sensitive=False,
     )

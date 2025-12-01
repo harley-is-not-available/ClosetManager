@@ -120,3 +120,6 @@ pytest_cache/
 
 # Generated documentation
 docs/_build/
+
+# images from testing
+/uploads

@@ -6,7 +6,7 @@ and model creation with sample data.
 
 from datetime import datetime
 
-from backend.models.clothing_item import ClothingItem
+from backend.models.clothing_item_model import ClothingItemModel
 from backend.models.user import User
 
 
@@ -14,9 +14,9 @@ class TestDatabaseRelationshipIntegrity:
     """Tests for database relationship integrity."""
 
     def test_user_clothing_item_relationship_integrity(self):
-        """Test that User and ClothingItem relationships are properly defined."""
-        # Check that ClothingItem has a foreign key to User
-        clothing_table = ClothingItem.__table__
+        """Test that User and ClothingItemModel relationships are properly defined."""
+        # Check that ClothingItemModel has a foreign key to User
+        clothing_table = ClothingItemModel.__table__
         user_id_column = clothing_table.columns.get("user_id")
         assert user_id_column is not None
         assert user_id_column.foreign_keys is not None
@@ -34,7 +34,7 @@ class TestDatabaseRelationshipIntegrity:
         user.full_name = "Test User"
 
         # Create test clothing item
-        item = ClothingItem()
+        item = ClothingItemModel()
         item.name = "Test T-Shirt"
         item.user_id = 1  # This should reference the user
 
@@ -56,7 +56,7 @@ class TestDatabaseMigrationReadiness:
         )  # id, email, hashed_password, full_name, created_at, updated_at
 
         # Verify ClothingItem table definition
-        clothing_table = ClothingItem.__table__
+        clothing_table = ClothingItemModel.__table__
         assert clothing_table.name == "clothing_items"
         assert len(clothing_table.columns) >= 10  # All required/unrequired columns
 
@@ -75,8 +75,8 @@ class TestDatabaseMigrationReadiness:
         for column in required_columns:
             assert column in user_table.columns
 
-        # Test ClothingItem required columns
-        clothing_table = ClothingItem.__table__
+        # Test ClothingItemModel required columns
+        clothing_table = ClothingItemModel.__table__
         required_columns = [
             "id",
             "name",
@@ -89,7 +89,7 @@ class TestDatabaseMigrationReadiness:
 
     def test_foreign_key_constraints(self):
         """Test that foreign key constraints are properly defined."""
-        clothing_table = ClothingItem.__table__
+        clothing_table = ClothingItemModel.__table__
         user_id_column = clothing_table.columns.get("user_id")
 
         # Check that user_id is a foreign key
@@ -111,8 +111,8 @@ class TestDatabaseMigrationReadiness:
         assert hashed_password_column.nullable is False
         assert full_name_column.nullable is False
 
-        # Test ClothingItem constraints
-        clothing_table = ClothingItem.__table__
+        # Test ClothingItemModel constraints
+        clothing_table = ClothingItemModel.__table__
         name_column = clothing_table.columns.get("name")
         user_id_column = clothing_table.columns.get("user_id")
 
@@ -141,8 +141,8 @@ class TestModelCreationWithSampleData:
         assert hasattr(user, "updated_at")  # Common field should exist
 
     def test_clothing_item_creation_with_sample_data(self):
-        """Test that ClothingItem can be created with sample data."""
-        item = ClothingItem()
+        """Test that ClothingItemModel can be created with sample data."""
+        item = ClothingItemModel()
         item.name = "Blue Jeans"
         item.description = "Denim jeans with button fly"
         item.category = "Bottoms"
@@ -174,7 +174,7 @@ class TestModelCreationWithSampleData:
         user.full_name = "Jane Smith"
 
         # Create a clothing item associated with the user
-        item = ClothingItem()
+        item = ClothingItemModel()
         item.name = "Red Shirt"
         item.user_id = 1  # Reference to the user
 

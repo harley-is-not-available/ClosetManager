@@ -3,6 +3,7 @@ UploadService for handling image uploads and processing.
 This service implements file handling workflows for clothing item images.
 """
 
+import base64
 import uuid
 from datetime import datetime
 from pathlib import Path
@@ -11,7 +12,7 @@ from typing import Optional
 from sqlalchemy.orm import Session
 
 from backend.config.upload_settings import upload_settings
-from backend.models.clothing_item import ClothingItem as ClothingItemModel
+from backend.models.clothing_item_model import ClothingItemModel
 from backend.schemas.clothing_item import ClothingItem
 
 
@@ -96,8 +97,11 @@ class UploadService:
             self.db_session.commit()
             self.db_session.refresh(db_item)
 
+            # Convert the file data to base64 string for the response
+            image_data = base64.b64encode(file_data).decode("utf-8")
+
             # Return the updated item
-            return ClothingItem.model_validate(db_item)
+            return ClothingItem.from_model(db_item, image_data)
 
         except Exception:
             # If there's an error, rollback the transaction and return None

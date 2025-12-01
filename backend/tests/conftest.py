@@ -1,3 +1,4 @@
+import base64
 import os
 from datetime import datetime
 from unittest.mock import Mock
@@ -11,12 +12,14 @@ from starlette.testclient import TestClient
 
 from backend.api.v1.auth import get_auth_service
 from backend.api.v1.auth import router as auth_router
+from backend.api.v1.items import get_item_service
 from backend.api.v1.items import router as items_router
 from backend.config.database import Base, get_db
-from backend.models.clothing_item import ClothingItem as ClothingItemModel
+from backend.models.clothing_item_model import ClothingItemModel
 from backend.models.user import User
 from backend.schemas.clothing_item import ClothingItem, ClothingItemCreate
 from backend.services.auth_service import AuthService
+from backend.services.item_service import ItemService
 from backend.services.upload_service import UploadService
 
 # Test database configuration
@@ -108,7 +111,7 @@ def test_clothing_item_partial_a(db_session, test_user_a):
         category="Tops",
     )
 
-    db_item = ClothingItemModel(**item_data.model_dump())
+    db_item = ClothingItemModel(**item_data.to_model())
     db_session.add(db_item)
     db_session.commit()
     # The session is often configured to expire/refresh the object
@@ -132,15 +135,19 @@ def test_clothing_item_full_a(db_session, test_user_a):
         color="Blue",
         price=29.99,
         purchase_date=datetime.now(),
-        image_path="/images/test.jpg",
+        image_data=base64.b64encode(b"test").decode("utf-8"),
+        image_name="test.jpg",
     )
 
-    db_item = ClothingItemModel(**item_data.model_dump())
+    db_item = ClothingItemModel(**item_data.to_model())
     db_session.add(db_item)
     db_session.commit()
     # The session is often configured to expire/refresh the object
     db_session.refresh(db_item)
-    return ClothingItem.model_validate(db_item)
+    item = ClothingItem.model_validate(db_item)
+    item.image_data = base64.b64encode(b"test").decode("utf-8")
+    item.image_name = "test.jpg"
+    return item
 
 
 @pytest.fixture
@@ -157,7 +164,7 @@ def test_clothing_item_partial_b(db_session, test_user_b):
         category="Tops",
     )
 
-    db_item = ClothingItemModel(**item_data.model_dump())
+    db_item = ClothingItemModel(**item_data.to_model())
     db_session.add(db_item)
     db_session.commit()
     # The session is often configured to expire/refresh the object
@@ -184,7 +191,7 @@ def test_clothing_item_full_b(db_session, test_user_b):
         image_path="/images/test.jpg",
     )
 
-    db_item = ClothingItemModel(**item_data.model_dump())
+    db_item = ClothingItemModel(**item_data.to_model())
     db_session.add(db_item)
     db_session.commit()
     # The session is often configured to expire/refresh the object
@@ -232,6 +239,42 @@ def override_auth_service(client, mock_auth_service_instance):
 
     # Cleanup: Remove the override after the test is complete
     client.app.dependency_overrides.pop(get_auth_service, None)
+
+
+@pytest.fixture
+def mock_item_service_instance():
+    """
+    Fixture that provides a mocked instance of ItemService for modification.
+    """
+    # Create the mock instance with spec=True for safety
+    mock_instance = Mock(spec=ItemService)
+
+    # Yield the instance so the test can configure it (e.g., set return_value)
+    yield mock_instance
+
+    # Cleanup (optional, but good practice): reset the mock state after the test
+    mock_instance.reset_mock()
+
+
+@pytest.fixture
+def override_item_service(client, mock_item_service_instance):
+    """
+    Fixture that applies the dependency override for ItemService.
+    It uses the mock instance provided by mock_item_service_instance.
+    """
+
+    # Define the callable function (the crucial part)
+    def mock_get_item_service_callable():
+        return mock_item_service_instance
+
+    # Apply the override
+    client.app.dependency_overrides[get_item_service] = mock_get_item_service_callable
+
+    # Yield control back to the test
+    yield
+
+    # Cleanup: Remove the override after the test is complete
+    client.app.dependency_overrides.pop(get_item_service, None)
 
 
 # @pytest.fixture

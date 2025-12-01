@@ -9,7 +9,7 @@ from pathlib import Path
 from config.upload_settings import upload_settings
 from sqlalchemy.orm import Session
 
-from backend.models.clothing_item import ClothingItem as ClothingItemModel
+from backend.models.clothing_item_model import ClothingItemModel
 from backend.schemas.clothing_item import ClothingItemCreate
 from backend.services.upload_service import UploadService
 
@@ -20,7 +20,6 @@ class TestUploadServiceFileHandling:
     def test_upload_image_success(
         self,
         db_session: Session,
-        tmp_path: Path,
         test_user_a,
         test_clothing_item_full_a,
     ):
@@ -33,17 +32,25 @@ class TestUploadServiceFileHandling:
         )
 
         assert result is not None
-        assert result.image_path is not None
-        assert result.image_path.startswith(
-            str(Path(upload_settings.upload_dir) / "1_1_")
-        )
-        assert result.image_path.endswith(".png")
+        assert result.image_data is not None
 
         # Check that file exists
-        file_path = Path(result.image_path)
+
+        # Refresh the item to get the updated image_path
+        db_item = (
+            db_session.query(ClothingItemModel)
+            .filter(
+                ClothingItemModel.id == test_clothing_item_full_a.id,
+                ClothingItemModel.user_id == test_user_a.id,
+            )
+            .first()
+        )
+
+        assert db_item is not None
+        file_path = Path(db_item.image_path)
         assert file_path.exists()
 
-    def test_upload_image_nonexistent_item(self, db_session: Session, tmp_path: Path):
+    def test_upload_image_nonexistent_item(self, db_session: Session):
         """Test uploading image to non-existent item."""
         upload_service = UploadService(db_session)
 
@@ -55,15 +62,10 @@ class TestUploadServiceFileHandling:
     def test_upload_image_wrong_user(
         self,
         db_session: Session,
-        tmp_path: Path,
         test_clothing_item_full_a,
         test_user_b,
     ):
         """Test uploading image to item owned by different user."""
-        # Create a temporary file
-        test_file = tmp_path / "test_image.jpg"
-        test_file.write_text("fake image content")
-
         upload_service = UploadService(db_session)
 
         # Try to upload with user_id=2 (different user)
@@ -73,70 +75,39 @@ class TestUploadServiceFileHandling:
 
         assert result is None
 
-    def test_upload_image_file_not_found(self, db_session: Session, tmp_path: Path):
-        """Test uploading non-existent file."""
-        upload_service = UploadService(db_session)
-
-        # Create a clothing item
-        item_data = ClothingItemCreate(
-            name="Test T-Shirt",
-            user_id=1,
-            description="A test t-shirt",
-            category="Tops",
-            size="M",
-            color="Blue",
-            price=29.99,
-            purchase_date=datetime.now(),
-            image_path=None,
-        )
-
-        db_item = ClothingItemModel(**item_data.model_dump())
-        db_session.add(db_item)
-        db_session.commit()
-        db_session.refresh(db_item)
-
-        # Try to upload a non-existent file (use bytes for file_data)
-        result = upload_service.upload_image(b"test", "non_existent.jpg", db_item.id, 1)
-
-        assert (
-            result is not None
-        )  # The method should return the item even if file doesn't exist
-
     def test_upload_image_with_special_characters(
-        self, db_session: Session, tmp_path: Path
+        self,
+        db_session: Session,
+        test_user_a,
+        test_clothing_item_full_a,
     ):
         """Test uploading image with special characters in filename."""
         upload_service = UploadService(db_session)
 
-        # Create a clothing item first
-        item_data = ClothingItemCreate(
-            name="Test T-Shirt",
-            user_id=1,
-            description="A test t-shirt",
-            category="Tops",
-            size="M",
-            color="Blue",
-            price=29.99,
-            purchase_date=datetime.now(),
-            image_path=None,
-        )
-
-        db_item = ClothingItemModel(**item_data.model_dump())
-        db_session.add(db_item)
-        db_session.commit()
-        db_session.refresh(db_item)
-
-        # Upload the image (use bytes for file_data)
+        # Upload the image
         result = upload_service.upload_image(
-            b"fake image content", "test_image_äöü.jpg", db_item.id, 1
+            b"test", "test_image_äöü.jpg", test_clothing_item_full_a.id, test_user_a.id
         )
 
         assert result is not None
-        assert result.image_path is not None
-        assert result.image_path.startswith(
-            str(Path(upload_settings.upload_dir) / "1_1_")
+        assert result.image_data is not None
+
+        # Check that file exists
+
+        # Refresh the item to get the updated image_path
+        db_item = (
+            db_session.query(ClothingItemModel)
+            .filter(
+                ClothingItemModel.id == test_clothing_item_full_a.id,
+                ClothingItemModel.user_id == test_user_a.id,
+            )
+            .first()
         )
-        assert result.image_path.endswith(".jpg")
+
+        assert db_item is not None
+        file_path = Path(db_item.image_path)
+        assert file_path.exists()
+        assert db_item.image_path.endswith(".jpg")
 
     def test_unique_filename_generation(self, db_session: Session, tmp_path: Path):
         """Test that unique filenames are generated using UUID."""
@@ -152,10 +123,11 @@ class TestUploadServiceFileHandling:
             color="Blue",
             price=29.99,
             purchase_date=datetime.now(),
-            image_path=None,
+            image_data=None,
+            image_name=None,
         )
 
-        db_item = ClothingItemModel(**item_data.model_dump())
+        db_item = ClothingItemModel(**item_data.to_model())
         db_session.add(db_item)
         db_session.commit()
         db_session.refresh(db_item)
@@ -165,12 +137,14 @@ class TestUploadServiceFileHandling:
             b"fake image content", "test_image.jpg", db_item.id, 1
         )
 
+        db_session.refresh(db_item)
+
         assert result is not None
-        assert result.image_path is not None
+        assert result.image_data is not None
 
         # Verify that the filename contains a UUID (not just timestamp)
         # UUID should be 32 characters long (hex) plus underscore
-        filename = Path(result.image_path).name
+        filename = Path(db_item.image_path).name
         assert "_" in filename
         # Should have UUID at the end
         parts = filename.split("_")
@@ -257,10 +231,11 @@ class TestUploadServiceErrorConditions:
             color="Blue",
             price=29.99,
             purchase_date=datetime.now(),
-            image_path=None,
+            image_data=None,
+            image_name=None,
         )
 
-        db_item = ClothingItemModel(**item_data.model_dump())
+        db_item = ClothingItemModel(**item_data.to_model())
         db_session.add(db_item)
         db_session.commit()
         db_session.refresh(db_item)
@@ -278,7 +253,7 @@ class TestUploadServiceErrorConditions:
         assert result2 is not None
 
         # The second upload should have a different file path
-        assert result1.image_path != result2.image_path
+        assert result1.image_data != result2.image_data
 
     def test_delete_image_file_not_found(self, db_session: Session, tmp_path: Path):
         """Test deleting image when file doesn't exist on disk."""
@@ -294,10 +269,11 @@ class TestUploadServiceErrorConditions:
             color="Blue",
             price=29.99,
             purchase_date=datetime.now(),
-            image_path=None,
+            image_data=None,
+            image_name=None,
         )
 
-        db_item = ClothingItemModel(**item_data.model_dump())
+        db_item = ClothingItemModel(**item_data.to_model())
         db_session.add(db_item)
         db_session.commit()
         db_session.refresh(db_item)

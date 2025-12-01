@@ -25,7 +25,9 @@ class User(AbstractBaseModel):
     full_name = mapped_column(String(255), nullable=False)
 
     # Relationships
-    clothing_items = relationship("ClothingItem", back_populates="user", lazy="select")
+    clothing_items = relationship(
+        "ClothingItemModel", back_populates="user", lazy="select"
+    )
 
     def __repr__(self) -> str:
         """
